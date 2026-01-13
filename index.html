@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryptor Pro v4.5 Premium</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --panel-color: #121212;
+            --accent-color: #FFD700; /* Vàng Gold */
+            --accent-glow: rgba(255, 215, 0, 0.2);
+            --text-color: #d1d1d1;
+            --border-color: #252525;
+            --input-bg: #050505;
+            --status-green: #00ff41;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at center, #151515 0%, #000 100%);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 900px;
+            background-color: var(--panel-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            padding: 12px 20px;
+            background: #000;
+            border-bottom: 2px solid var(--accent-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 13px;
+            letter-spacing: 3px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+        }
+
+        .version {
+            background: var(--accent-color);
+            color: #000;
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 900;
+            border-radius: 2px;
+        }
+
+        /* Tool Bar */
+        .tool-bar {
+            display: flex;
+            gap: 20px;
+            padding: 12px 20px;
+            background: #111;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .domain-input {
+            background: #000;
+            border: 1px solid #333;
+            color: var(--accent-color);
+            padding: 6px 10px;
+            font-size: 11px;
+            border-radius: 3px;
+            width: 200px;
+            outline: none;
+        }
+
+        .btn-group {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 7px 15px;
+            border: 1px solid var(--accent-color);
+            background: transparent;
+            color: var(--accent-color);
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-main { background: var(--accent-color); color: #000; }
+
+        /* Editors */
+        .main-editor {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 400px;
+            background: #000;
+        }
+
+        .pane {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .pane-label {
+            padding: 6px 12px;
+            font-size: 9px;
+            background: #080808;
+            color: #555;
+            text-transform: uppercase;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        textarea {
+            flex-grow: 1;
+            background: var(--input-bg);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-size: 12px;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+
+        #outputCode { color: var(--accent-color); }
+
+        /* Status */
+        .status-bar {
+            padding: 10px 20px;
+            background: #050505;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #status-msg { color: var(--status-green); text-transform: uppercase; }
+
+        @media (max-width: 700px) {
+            .main-editor { grid-template-columns: 1fr; height: 600px; }
+            .tool-bar { flex-direction: column; align-items: flex-start; }
+            .btn-group { margin-left: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Encryptor Pro Hybrid</h1>
+        <span class="version">V4.5 FULL PREMIUM</span>
+    </header>
+
+    <div class="tool-bar">
+        <input type="text" id="domainLock" class="domain-input" placeholder="DOMAIN LOCK (OPTIONAL)">
+        
+        <div class="btn-group">
+            <button onclick="downloadHtml()">Download</button>
+            <button onclick="copyOutput()">Copy</button>
+            <button class="btn-main" onclick="executeEncryption()">Execute Protection</button>
+        </div>
+    </div>
+
+    <div class="main-editor">
+        <div class="pane">
+            <div class="pane-label">Source Input (HTML/CSS/JS)</div>
+            <textarea id="inputCode" placeholder=""></textarea>
+        </div>
+        <div class="pane">
+            <div class="pane-label">Encrypted Output</div>
+            <textarea id="outputCode" readonly placeholder="-- Encrypted content will appear here..."></textarea>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span>STATUS: <span id="status-msg">STANDBY</span></span>
+        <span>ALGORITHM: XOR-B64-HYBRID</span>
+    </div>
+</div>
+
+<script>
+    const updateStatus = (m) => document.getElementById('status-msg').innerText = m;
+
+    function executeEncryption() {
+        const input = document.getElementById('inputCode').value;
+        const domain = document.getElementById('domainLock').value.trim();
+
+        if (!input.trim()) {
+            updateStatus('ERROR: NO DATA');
+            return;
+        }
+
+        updateStatus('ENCRYPTING...');
+
+        setTimeout(() => {
+            // 1. Khởi tạo Khóa XOR
+            const key = Array.from({length: 16}, () => Math.floor(Math.random() * 256));
+
+            // 2. Mã bảo vệ (Anti-Debug & Domain Lock)
+            const protection = `
+            <script>
+            (function(){
+                document.addEventListener('contextmenu', e => e.preventDefault());
+                document.onkeydown = e => { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode == 85)) return false; };
+                setInterval(function(){ (function(){}.constructor('debugger')()) }, 200);
+                ${domain ? `if(!window.location.hostname.includes("${domain}")){ document.body.innerHTML="Unauthorized Access"; return; }` : ''}
+            })();
+            <\/script>`;
+
+            // 3. Đóng gói & Mã hóa Base64 Unicode
+            const sourceWithDefense = input + protection;
+            const encodedB64 = btoa(unescape(encodeURIComponent(sourceWithDefense)));
+
+            // 4. Lớp XOR
+            let xored = "";
+            for (let i = 0; i < encodedB64.length; i++) {
+                xored += String.fromCharCode(encodedB64.charCodeAt(i) ^ key[i % key.length]);
+            }
+
+            // 5. Trình giải mã (Loader)
+            const final = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><script>
+(function(){
+    var _k = [${key.join(',')}], _d = "${btoa(xored)}",
+    _dc = function(a){
+        var s = atob(a), r = "";
+        for(var i=0; i<s.length; i++) r += String.fromCharCode(s.charCodeAt(i) ^ _k[i % _k.length]);
+        return decodeURIComponent(escape(atob(r)));
+    };
+    try { document.open(); document.write(_dc(_d)); document.close(); } catch(e){ document.body.innerHTML = "Decryption Failed"; }
+})();
+<\/script></body></html>`;
+
+            document.getElementById('outputCode').value = final;
+            updateStatus('COMPLETED');
+        }, 500);
+    }
+
+    function copyOutput() {
+        const out = document.getElementById('outputCode');
+        if (!out.value) return;
+        navigator.clipboard.writeText(out.value);
+        updateStatus('COPIED');
+    }
+
+    function downloadHtml() {
+        const code = document.getElementById('outputCode').value;
+        if (!code) return;
+        const blob = new Blob([code], {type: 'text/html'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "index_protected.html";
+        a.click();
+        updateStatus('DOWNLOADED');
+    }
+</script>
+
+</body>
+</html>
